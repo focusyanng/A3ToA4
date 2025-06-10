@@ -1,182 +1,932 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>A3转A4 - 文件转换器</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f4f6f9;
-      color: #333;
-    }
-
-    header {
-      background: #0d6efd;
-      color: white;
-      padding: 20px 0;
-      text-align: center;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: auto;
-      padding: 30px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      padding: 25px;
-      margin-bottom: 30px;
-    }
-
-    h2 {
-      margin-top: 0;
-    }
-
-    .upload-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border: 2px dashed #ccc;
-      padding: 40px;
-      border-radius: 10px;
-      background: #fafafa;
-      text-align: center;
-    }
-
-    .upload-section input[type="file"] {
-      margin-top: 20px;
-    }
-
-    .pricing {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-    }
-
-    .plan {
-      background: #fff;
-      border: 2px solid #ddd;
-      border-radius: 10px;
-      padding: 20px;
-      text-align: center;
-      transition: 0.3s ease;
-    }
-
-    .plan:hover {
-      border-color: #0d6efd;
-    }
-
-    .plan h3 {
-      margin: 0;
-      font-size: 20px;
-      color: #0d6efd;
-    }
-
-    .price {
-      font-size: 24px;
-      margin: 10px 0;
-    }
-
-    .btn {
-      background: #0d6efd;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 14px;
-      color: #888;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A3转A4文件转换器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #1a2a6c, #b21f1f);
+            color: white;
+            padding: 25px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            position: relative;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .content {
+            display: flex;
+            padding: 30px;
+            min-height: 500px;
+            gap: 20px;
+        }
+        
+        .upload-section {
+            flex: 1;
+            padding: 20px;
+            border-right: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .preview-section {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #1a2a6c, #b21f1f);
+            border-radius: 3px;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            color: #1a2a6c;
+        }
+        
+        .drop-area {
+            border: 3px dashed #1a2a6c;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            background: #f8f9fa;
+            transition: all 0.3s;
+            cursor: pointer;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .drop-area:hover, .drop-area.dragover {
+            background: #e3f2fd;
+            border-color: #b21f1f;
+        }
+        
+        .drop-area i {
+            font-size: 64px;
+            color: #1a2a6c;
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+        
+        .drop-area:hover i {
+            transform: translateY(-5px);
+        }
+        
+        .drop-area h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .drop-area p {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            max-width: 80%;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .btn {
+            background: linear-gradient(90deg, #1a2a6c, #b21f1f);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(26, 42, 108, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+            transition: all 0.5s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(26, 42, 108, 0.4);
+        }
+        
+        .btn:hover::after {
+            transform: rotate(30deg) translate(20%, 20%);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(90deg, #5a6268, #6c757d);
+        }
+        
+        .btn-success {
+            background: linear-gradient(90deg, #28a745, #218838);
+        }
+        
+        .settings {
+            margin: 25px 0;
+        }
+        
+        .setting-group {
+            margin-bottom: 20px;
+        }
+        
+        .setting-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .preview-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .preview-area {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .preview-box {
+            border: 2px solid #1a2a6c;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f8f9fa;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .preview-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(90deg, #1a2a6c, #b21f1f);
+        }
+        
+        .preview-label {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            color: white;
+            font-weight: bold;
+            z-index: 2;
+        }
+        
+        .a3-preview {
+            width: 220px;
+            height: 155px;
+        }
+        
+        .a4-preview {
+            width: 155px;
+            height: 220px;
+        }
+        
+        .conversion-icon {
+            font-size: 2rem;
+            color: #b21f1f;
+        }
+        
+        .result-section {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            width: 100%;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .file-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .file-info.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        .file-info p {
+            margin: 5px 0;
+            color: #2c3e50;
+        }
+        
+        .file-info strong {
+            color: #1a2a6c;
+        }
+        
+        .status-text {
+            text-align: center;
+            margin: 10px 0;
+            font-weight: 500;
+            color: #2c3e50;
+            min-height: 24px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .a4-pages-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .a4-page-item {
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            width: 180px;
+        }
+        
+        .a4-page-item canvas {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #eee;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 900px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .upload-section {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .preview-area {
+                flex-direction: column;
+            }
+            
+            .conversion-icon {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
 </head>
 <body>
-
-<header>
-  <h1>A3 转 A4 文件转换器</h1>
-  <p>简单、快速、在线转换您的文档尺寸</p>
-</header>
-
-<div class="container">
-
-  <div class="card">
-    <h2>上传您的 A3 文件</h2>
-    <div class="upload-section">
-      <p>请上传一个 A3 尺寸的 PDF 或图片文件</p>
-      <input type="file" accept=".pdf,.jpg,.jpeg,.png" id="fileInput"/>
-      <button class="btn" onclick="convertFile()">开始转换</button>
-      <p style="margin-top: 15px; font-size: 14px; color: green;">✅ 免费试用一次</p>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-file-contract"></i>
+                </div>
+                <div class="logo-text">Pro<span>PDF</span></div>
+            </div>
+            <h1>专业A3转A4文件转换服务</h1>
+            <p>高效、精准的文档转换解决方案</p>
+            <div class="tagline">
+                <i class="fas fa-star"></i> 企业级品质 | 安全可靠 | 专业支持
+            </div>
+            <button class="btn btn-accent" id="headerSubscribeBtn">
+                <i class="fas fa-crown"></i> 升级专业版
+            </button>
+        </header>
+            <h1><i class="fas fa-file-contract"></i> A3 转 A4 文件转换器</h1>
+            <p>将A3尺寸的文档/图片转换为标准的A4格式，支持PDF和图片格式转换</p>
+        </header>
+        
+        <div class="content">
+            <div class="upload-section">
+                <div class="section-title">
+                    <i class="fas fa-upload"></i>
+                    <h2>上传文件</h2>
+                </div>
+                
+                <div class="drop-area" id="dropArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>拖放文件到此处</h3>
+                    <p>支持PDF、JPG、PNG格式，最大文件大小: 20MB</p>
+                    <button class="btn" id="browseBtn">选择文件</button>
+                    <input type="file" id="fileInput" class="file-input" accept=".pdf,.jpg,.jpeg,.png">
+                </div>
+                
+                <div class="file-info" id="fileInfo">
+                    <p><strong>文件名:</strong> <span id="fileName">未选择文件</span></p>
+                    <p><strong>文件大小:</strong> <span id="fileSize">-</span></p>
+                    <p><strong>文件类型:</strong> <span id="fileType">-</span></p>
+                </div>
+                
+                <div class="settings">
+                    <div class="section-title">
+                        <i class="fas fa-cog"></i>
+                        <h2>转换设置</h2>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="splitDirection">分割方向</label>
+                        <select id="splitDirection">
+                            <option value="horizontal">水平分割（左右）</option>
+                            <option value="vertical">垂直分割（上下）</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="outputFormat">输出格式</label>
+                        <select id="outputFormat">
+                            <option value="image">图片（JPG）</option>
+                            <option value="pdf">PDF文档</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-success" id="convertBtn">开始转换</button>
+                </div>
+            </div>
+            
+            <div class="preview-section">
+                <div class="section-title">
+                    <i class="fas fa-eye"></i>
+                    <h2>预览与结果</h2>
+                </div>
+                
+                <div class="preview-container">
+                    <div class="preview-content">
+                        <div class="preview-area">
+                            <div class="preview-box a3-preview">
+                                <span class="preview-label">原始A3文件</span>
+                                <canvas id="a3Preview" width="210" height="297"></canvas>
+                            </div>
+                            
+                            <div class="conversion-icon">
+                                <i class="fas fa-long-arrow-alt-right"></i>
+                            </div>
+                            
+                            <div class="preview-box a4-preview">
+                                <span class="preview-label">A4页面</span>
+                                <canvas id="a4Preview" width="148" height="210"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="status-text" id="statusText">
+                            请上传A3文件开始转换
+                        </div>
+                        
+                        <div class="a4-pages-container" id="a4PagesContainer">
+                            <!-- A4页面将会在这里动态生成 -->
+                        </div>
+                        
+                        <div class="result-section" id="resultSection" style="display: none;">
+                            <div class="btn-group">
+                                <button class="btn btn-success" id="downloadBtn">
+                                    <i class="fas fa-download"></i> 下载所有A4页面
+                                </button>
+                                <button class="btn btn-secondary" id="newConversionBtn">
+                                    <i class="fas fa-redo"></i> 新转换
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 A3转A4文件转换器 | 纯前端实现 | 支持所有现代浏览器</p>
+        </footer>
     </div>
-  </div>
-
-  <div class="card">
-    <h2>订阅计划</h2>
-    <p>解锁无限次转换，选择适合你的套餐：</p>
-    <div class="pricing">
-      <div class="plan">
-        <h3>一个月</h3>
-        <p class="price">¥19/月</p>
-        <button class="btn">立即订阅</button>
-      </div>
-      <div class="plan">
-        <h3>一季度</h3>
-        <p class="price">¥39/季</p>
-        <button class="btn">立即订阅</button>
-      </div>
-      <div class="plan">
-        <h3>半年</h3>
-        <p class="price">¥119/半年</p>
-        <button class="btn">立即订阅</button>
-      </div>
-      <div class="plan">
-        <h3>一年</h3>
-        <p class="price">¥219/年</p>
-        <button class="btn">立即订阅</button>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<div class="footer">
-  &copy; 2025 A3转A4转换器 | 所有权利保留
-</div>
-
-<script>
-  let freeUsage = true;
-
-  function convertFile() {
-    const fileInput = document.getElementById('fileInput');
-    if (!fileInput.files.length) {
-      alert("请先选择一个文件");
-      return;
-    }
-
-    if (freeUsage) {
-      alert("已启动免费转换，请等待结果...");
-      // 模拟转换过程
-      setTimeout(() => {
-        alert("转换完成！点击下载");
-        freeUsage = false;
-      }, 1500);
-    } else {
-      alert("您已使用完免费次数，请订阅以继续使用");
-    }
-  }
-</script>
-
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+            const browseBtn = document.getElementById('browseBtn');
+            const fileInfo = document.getElementById('fileInfo');
+            const convertBtn = document.getElementById('convertBtn');
+            const statusText = document.getElementById('statusText');
+            const resultSection = document.getElementById('resultSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const newConversionBtn = document.getElementById('newConversionBtn');
+            const a4PagesContainer = document.getElementById('a4PagesContainer');
+            const a3Preview = document.getElementById('a3Preview');
+            const a4Preview = document.getElementById('a4Preview');
+            
+            let originalFile = null;
+            let convertedPages = [];
+            
+            // 浏览文件
+            browseBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            // 文件选择处理
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            // 拖放功能
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('dragover');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('dragover');
+            }
+            
+            // 处理文件拖放
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+            
+            function handleFileSelect(e) {
+                const files = e.target.files;
+                handleFiles(files);
+            }
+            
+            function handleFiles(files) {
+                if (files.length > 0) {
+                    originalFile = files[0];
+                    const fileType = getFileType(originalFile.name);
+                    
+                    // 显示文件信息
+                    document.getElementById('fileName').textContent = originalFile.name;
+                    document.getElementById('fileSize').textContent = formatFileSize(originalFile.size);
+                    document.getElementById('fileType').textContent = fileType.toUpperCase();
+                    fileInfo.classList.add('active');
+                    
+                    // 预览文件
+                    previewFile(originalFile);
+                    
+                    statusText.textContent = '已准备好转换: ' + originalFile.name;
+                }
+            }
+            
+            // 预览文件
+            function previewFile(file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const dataURL = e.target.result;
+                    
+                    if (file.type === 'application/pdf') {
+                        // 使用PDF.js渲染第一页作为预览
+                        renderPDFPreview(dataURL);
+                    } else {
+                        // 图片预览
+                        renderImagePreview(dataURL);
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+            }
+            
+            function renderImagePreview(dataURL) {
+                const img = new Image();
+                img.onload = function() {
+                    // 绘制A3预览
+                    const ctxA3 = a3Preview.getContext('2d');
+                    const scale = Math.min(a3Preview.width / img.width, a3Preview.height / img.height);
+                    const x = (a3Preview.width - img.width * scale) / 2;
+                    const y = (a3Preview.height - img.height * scale) / 2;
+                    
+                    ctxA3.clearRect(0, 0, a3Preview.width, a3Preview.height);
+                    ctxA3.drawImage(img, x, y, img.width * scale, img.height * scale);
+                    
+                    // 绘制A4预览（显示部分内容）
+                    const ctxA4 = a4Preview.getContext('2d');
+                    ctxA4.clearRect(0, 0, a4Preview.width, a4Preview.height);
+                    
+                    // 绘制左上角部分
+                    const scaleA4 = Math.min(a4Preview.width / (img.width/2), a4Preview.height / (img.height/2));
+                    ctxA4.drawImage(img, 0, 0, img.width/2, img.height/2, 
+                                    0, 0, (img.width/2)*scaleA4, (img.height/2)*scaleA4);
+                };
+                img.src = dataURL;
+            }
+            
+            function renderPDFPreview(dataURL) {
+                // PDF.js渲染
+                const loadingTask = pdfjsLib.getDocument({data: atob(dataURL.split(',')[1])});
+                
+                loadingTask.promise.then(function(pdf) {
+                    pdf.getPage(1).then(function(page) {
+                        const viewport = page.getViewport({scale: 0.5});
+                        
+                        // 设置A3预览canvas尺寸
+                        a3Preview.width = viewport.width;
+                        a3Preview.height = viewport.height;
+                        
+                        const ctxA3 = a3Preview.getContext('2d');
+                        const renderContext = {
+                            canvasContext: ctxA3,
+                            viewport: viewport
+                        };
+                        
+                        page.render(renderContext).promise.then(function() {
+                            // 设置A4预览canvas尺寸（一半）
+                            a4Preview.width = viewport.width / 2;
+                            a4Preview.height = viewport.height / 2;
+                            
+                            const ctxA4 = a4Preview.getContext('2d');
+                            // 绘制左上角部分
+                            ctxA4.drawImage(a3Preview, 0, 0, a4Preview.width, a4Preview.height, 
+                                           0, 0, a4Preview.width, a4Preview.height);
+                        });
+                    });
+                });
+            }
+            
+            // 转换按钮事件
+            convertBtn.addEventListener('click', startConversion);
+            
+            function startConversion() {
+                if (!originalFile) {
+                    statusText.textContent = '请先上传文件';
+                    return;
+                }
+                
+                statusText.textContent = '正在转换文件...';
+                resultSection.style.display = 'none';
+                a4PagesContainer.style.display = 'none';
+                a4PagesContainer.innerHTML = '';
+                convertedPages = [];
+                
+                // 根据文件类型处理
+                if (originalFile.type === 'application/pdf') {
+                    convertPDF(originalFile);
+                } else {
+                    convertImage(originalFile);
+                }
+            }
+            
+            function convertImage(file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // 获取分割方向
+                        const splitDirection = document.getElementById('splitDirection').value;
+                        
+                        if (splitDirection === 'horizontal') {
+                            // 水平分割（左右）
+                            createA4Page(img, 0, 0, img.width/2, img.height);
+                            createA4Page(img, img.width/2, 0, img.width/2, img.height);
+                        } else {
+                            // 垂直分割（上下）
+                            createA4Page(img, 0, 0, img.width, img.height/2);
+                            createA4Page(img, 0, img.height/2, img.width, img.height/2);
+                        }
+                        
+                        conversionComplete();
+                    };
+                    img.src = e.target.result;
+                };
+                
+                reader.readAsDataURL(file);
+            }
+            
+            function convertPDF(file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const dataURL = e.target.result;
+                    const loadingTask = pdfjsLib.getDocument({data: atob(dataURL.split(',')[1])});
+                    
+                    loadingTask.promise.then(function(pdf) {
+                        const numPages = pdf.numPages;
+                        let pagesProcessed = 0;
+                        
+                        for (let i = 1; i <= numPages; i++) {
+                            pdf.getPage(i).then(function(page) {
+                                const viewport = page.getViewport({scale: 1.5});
+                                
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
+                                canvas.width = viewport.width;
+                                canvas.height = viewport.height;
+                                
+                                const renderContext = {
+                                    canvasContext: ctx,
+                                    viewport: viewport
+                                };
+                                
+                                page.render(renderContext).promise.then(function() {
+                                    const img = new Image();
+                                    img.onload = function() {
+                                        // 分割PDF页面为两个A4
+                                        const splitDirection = document.getElementById('splitDirection').value;
+                                        
+                                        if (splitDirection === 'horizontal') {
+                                            // 水平分割
+                                            createA4Page(img, 0, 0, img.width/2, img.height);
+                                            createA4Page(img, img.width/2, 0, img.width/2, img.height);
+                                        } else {
+                                            // 垂直分割
+                                            createA4Page(img, 0, 0, img.width, img.height/2);
+                                            createA4Page(img, 0, img.height/2, img.width, img.height/2);
+                                        }
+                                        
+                                        pagesProcessed++;
+                                        if (pagesProcessed === numPages) {
+                                            conversionComplete();
+                                        }
+                                    };
+                                    img.src = canvas.toDataURL('image/jpeg');
+                                });
+                            });
+                        }
+                    });
+                };
+                
+                reader.readAsDataURL(file);
+            }
+            
+            function createA4Page(img, sx, sy, sw, sh) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // 设置A4尺寸（210x297mm比例）
+                canvas.width = 1050; // 300 DPI for A4
+                canvas.height = 1485;
+                
+                // 计算缩放比例以适应A4
+                const scale = Math.min(canvas.width / sw, canvas.height / sh);
+                const dx = (canvas.width - sw * scale) / 2;
+                const dy = (canvas.height - sh * scale) / 2;
+                
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, sx, sy, sw, sh, dx, dy, sw * scale, sh * scale);
+                
+                convertedPages.push(canvas);
+                
+                // 添加到预览区域
+                const pageItem = document.createElement('div');
+                pageItem.className = 'a4-page-item';
+                pageItem.innerHTML = `
+                    <canvas width="${canvas.width}" height="${canvas.height}"></canvas>
+                    <p>第 ${convertedPages.length} 页</p>
+                `;
+                
+                const previewCanvas = pageItem.querySelector('canvas');
+                const previewCtx = previewCanvas.getContext('2d');
+                previewCtx.drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height);
+                
+                a4PagesContainer.appendChild(pageItem);
+            }
+            
+            function conversionComplete() {
+                statusText.textContent = '转换完成！共生成 ' + convertedPages.length + ' 个A4页面';
+                resultSection.style.display = 'flex';
+                a4PagesContainer.style.display = 'flex';
+            }
+            
+            // 下载按钮事件
+            downloadBtn.addEventListener('click', downloadAllPages);
+            
+            function downloadAllPages() {
+                if (convertedPages.length === 0) {
+                    alert('没有可下载的页面');
+                    return;
+                }
+                
+                const outputFormat = document.getElementById('outputFormat').value;
+                
+                if (outputFormat === 'pdf') {
+                    // 在实际应用中，这里应生成PDF文件
+                    alert('PDF下载功能需要后端支持。\n\n此演示版本仅提供图片下载。');
+                    return;
+                }
+                
+                // 下载所有图片
+                convertedPages.forEach((canvas, index) => {
+                    const link = document.createElement('a');
+                    link.download = `a4_page_${index + 1}.jpg`;
+                    link.href = canvas.toDataURL('image/jpeg', 0.9);
+                    link.click();
+                });
+            }
+            
+            // 新转换按钮事件
+            newConversionBtn.addEventListener('click', () => {
+                fileInfo.classList.remove('active');
+                resultSection.style.display = 'none';
+                a4PagesContainer.style.display = 'none';
+                a4PagesContainer.innerHTML = '';
+                fileInput.value = '';
+                originalFile = null;
+                convertedPages = [];
+                
+                // 清除预览
+                const ctxA3 = a3Preview.getContext('2d');
+                ctxA3.clearRect(0, 0, a3Preview.width, a3Preview.height);
+                
+                const ctxA4 = a4Preview.getContext('2d');
+                ctxA4.clearRect(0, 0, a4Preview.width, a4Preview.height);
+                
+                statusText.textContent = '请上传A3文件开始转换';
+            });
+            
+            // 辅助函数
+            function getFileType(fileName) {
+                return fileName.split('.').pop().toLowerCase();
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        });
+        
+        // 订阅计划
+        <div class="subscription-plans">
+            <div class="plan-card">
+                <div class="plan-header">
+                    <h3>半年订阅</h3>
+                    <div class="plan-price">¥79</div>
+                </div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> 无限制转换</li>
+                    <li><i class="fas fa-check"></i> 无水印输出</li>
+                    <li><i class="fas fa-check"></i> 优先支持</li>
+                </ul>
+                <button class="btn btn-accent subscribe-plan" data-plan="半年订阅" data-price="79">
+                    <i class="fas fa-gem"></i> 立即订阅
+                </button>
+            </div>
+            
+            <div class="plan-card featured">
+                <div class="plan-badge">超值推荐</div>
+                <div class="plan-header">
+                    <h3>年度订阅</h3>
+                    <div class="plan-price">¥139</div>
+                    <div class="plan-save">节省 ¥59</div>
+                </div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> 无限制转换</li>
+                    <li><i class="fas fa-check"></i> 无水印输出</li>
+                    <li><i class="fas fa-check"></i> 优先支持</li>
+                    <li><i class="fas fa-check"></i> 额外5GB云存储</li>
+                </ul>
+                <button class="btn btn-success subscribe-plan" data-plan="年度订阅" data-price="139">
+                    <i class="fas fa-crown"></i> 立即订阅
+                </button>
+            </div>
+        </div>
+    </script>
 </body>
 </html>
